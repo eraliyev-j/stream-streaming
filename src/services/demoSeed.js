@@ -2,10 +2,10 @@
 // Values are generated, NOT real measurements.
 
 export const DEMO_USERS = [
-  { id: 'u-head', email: 'head@lab.demo', full_name: 'Prof. Park Sunghyuk', researcher_code: 'LAB-HEAD', role: 'head' },
-  { id: 'u-r1', email: 'r1@lab.demo', full_name: 'Eraliev Javokhir', researcher_code: '2677714', role: 'researcher' },
-  { id: 'u-r2', email: 'r2@lab.demo', full_name: 'Rasuljonov Abdullokh', researcher_code: '2573343', role: 'researcher' },
-  { id: 'u-r3', email: 'r3@lab.demo', full_name: 'Mamatkobulov Javokhirbek', researcher_code: '2573366', role: 'researcher' },
+  { id: 'u-head', email: 'shpark@dau.ac.kr', full_name: 'Prof. Park Sunghyuk', researcher_code: 'LAB-HEAD', role: 'head' },
+  { id: 'u-r1', email: 'javokhireraliev2001@gmail.com', full_name: 'Eraliev Javokhir', researcher_code: '2677714', role: 'researcher' },
+  { id: 'u-r2', email: 'abdullokhrasuljonov@gmail.com', full_name: 'Rasuljonov Abdullokh', researcher_code: '2573343', role: 'researcher' },
+  { id: 'u-r3', email: 'javokhirbekmamatkobulov@gmail.com', full_name: 'Mamatkobulov Javokhirbek', researcher_code: '2573366', role: 'researcher' },
 ]
 
 // Small seeded random generator so the demo looks the same every time
