@@ -4,7 +4,7 @@
 // Supabase policies (owner or head may edit/delete).
 import { buildDemoDatabase, DEMO_USERS } from './demoSeed.js'
 
-const DB_KEY = 'stream-streaming-demo-db-v2' // bump when demo seed changes
+const DB_KEY = 'stream-streaming-demo-db-v6' // bump when demo seed changes
 const SESSION_KEY = 'stream-streaming-demo-session'
 
 function load() {

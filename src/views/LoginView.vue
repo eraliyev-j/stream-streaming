@@ -112,7 +112,7 @@ async function demoLogin(id) {
             </label>
             <label class="field">
               <span>Researcher ID</span>
-              <input v-model="researcherCode" class="input" placeholder="e.g. R-004" required />
+              <input v-model="researcherCode" class="input" placeholder="Your student ID" required />
             </label>
           </template>
           <label class="field">

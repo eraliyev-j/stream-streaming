@@ -51,7 +51,11 @@ export function createSupabaseBackend(url, anonKey) {
         await sb.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName, researcher_code: researcherCode } },
+          options: {
+            data: { full_name: fullName, researcher_code: researcherCode },
+            // the confirmation email links back to wherever the site is deployed
+            emailRedirectTo: window.location.origin,
+          },
         }),
       )
       // If email confirmation is on, there is no session yet
