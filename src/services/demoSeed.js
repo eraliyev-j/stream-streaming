@@ -1,11 +1,11 @@
-﻿// Synthetic demo data used only when Supabase is not configured.
+// Synthetic demo data used only when Supabase is not configured.
 // Values are generated, NOT real measurements.
 
 export const DEMO_USERS = [
-  { id: 'u-head', email: 'head@lab.demo', full_name: 'Dr. Kim Seo-yeon', researcher_code: 'LAB-HEAD', role: 'head' },
-  { id: 'u-r1', email: 'r1@lab.demo', full_name: 'Lee Ji-ho', researcher_code: 'R-001', role: 'researcher' },
-  { id: 'u-r2', email: 'r2@lab.demo', full_name: 'Park Min-jun', researcher_code: 'R-002', role: 'researcher' },
-  { id: 'u-r3', email: 'r3@lab.demo', full_name: 'Aziza Karimova', researcher_code: 'R-003', role: 'researcher' },
+  { id: 'u-head', email: 'head@lab.demo', full_name: 'Prof. Park Sunghyuk', researcher_code: 'LAB-HEAD', role: 'head' },
+  { id: 'u-r1', email: 'r1@lab.demo', full_name: 'Eraliev Javokhir', researcher_code: '2677714', role: 'researcher' },
+  { id: 'u-r2', email: 'r2@lab.demo', full_name: 'Rasuljonov Abdullokh', researcher_code: '2573343', role: 'researcher' },
+  { id: 'u-r3', email: 'r3@lab.demo', full_name: 'Mamatkobulov Javokhirbek', researcher_code: '2573366', role: 'researcher' },
 ]
 
 // Small seeded random generator so the demo looks the same every time
@@ -61,8 +61,8 @@ function makeRows(seed, { sites, base, lat, lon, start, days, outliers = [] }) {
 export function buildDemoDatabase() {
   const datasets = [
     {
-      id: 'ds-1', owner_id: 'u-r1', researcher_code: 'R-001', researcher_name: 'Lee Ji-ho',
-      title: 'Geojongcheon upstream survey', stream_name: 'Geojongcheon', sampling_date: '2026-09-15',
+      id: 'ds-1', owner_id: 'u-r1', researcher_code: '2677714', researcher_name: 'Eraliev Javokhir',
+      title: 'Geojeongcheon upstream survey', stream_name: 'Geojeongcheon', sampling_date: '2026-09-15',
       note: 'Three upstream sites (GJ-01 to GJ-03). Rain on 27 Sep (expect turbidity spike).',
       source: 'csv', created_at: '2026-10-20T08:00:00Z', updated_at: '2026-10-20T08:00:00Z',
       rows: makeRows(11, {
@@ -72,8 +72,8 @@ export function buildDemoDatabase() {
       }),
     },
     {
-      id: 'ds-2', owner_id: 'u-r2', researcher_code: 'R-002', researcher_name: 'Park Min-jun',
-      title: 'Geojongcheon urban reach', stream_name: 'Geojongcheon', sampling_date: '2026-10-01',
+      id: 'ds-2', owner_id: 'u-r2', researcher_code: '2573343', researcher_name: 'Rasuljonov Abdullokh',
+      title: 'Geojeongcheon urban reach', stream_name: 'Geojeongcheon', sampling_date: '2026-10-01',
       note: 'Mid-stream urbanised reach near combined-sewer outfalls (GJ-04, GJ-05). Weekly grab samples.',
       source: 'xlsx', created_at: '2026-10-28T05:30:00Z', updated_at: '2026-10-28T05:30:00Z',
       rows: makeRows(23, {
@@ -83,8 +83,8 @@ export function buildDemoDatabase() {
       }),
     },
     {
-      id: 'ds-3', owner_id: 'u-r3', researcher_code: 'R-003', researcher_name: 'Aziza Karimova',
-      title: 'Geojongcheon downstream baseline', stream_name: 'Geojongcheon', sampling_date: '2026-10-10',
+      id: 'ds-3', owner_id: 'u-r3', researcher_code: '2573366', researcher_name: 'Mamatkobulov Javokhirbek',
+      title: 'Geojeongcheon downstream baseline', stream_name: 'Geojeongcheon', sampling_date: '2026-10-10',
       note: 'Downstream sites GJ-06 to GJ-08. Multiparameter sonde + lab BOD/COD/T-N/T-P.',
       source: 'form', created_at: '2026-11-02T10:15:00Z', updated_at: '2026-11-02T10:15:00Z',
       rows: makeRows(37, {

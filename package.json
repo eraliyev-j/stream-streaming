@@ -1,7 +1,7 @@
 {
   "name": "stream-streaming",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,5 +20,9 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.10",
     "vite": "^8.3.6"
-  }
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "description": "Stream Streaming - Geojeongcheon water-quality research tool"
 }

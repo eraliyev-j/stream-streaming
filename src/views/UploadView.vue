@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { api } from '../services/api.js'
 import { session } from '../store/session.js'
 import { PARAMETERS, META_COLUMNS } from '../lib/parameters.js'
-import { readTable, suggestMapping, buildRows, toNumber } from '../lib/parseFile.js'
+import { readTable, suggestMapping, buildRows, toNumber, toIsoDate } from '../lib/parseFile.js'
 import { fmt } from '../lib/stats.js'
 import { fmtDate } from '../lib/columns.js'
 
@@ -32,6 +32,10 @@ const headers = ref([])
 const records = ref([])
 const mapping = ref({})
 const dragging = ref(false)
+const layout = ref('long')
+const fileNotes = ref([]) // what the reader understood about the file
+const fileChecks = ref([]) // problems found while reading (e.g. mismatched dates)
+const belowLimit = ref('half') // how "<x" detection-limit values are stored
 
 const targetOptions = [
   ...META_COLUMNS.map((c) => ({ value: c.key, label: c.label })),
@@ -50,8 +54,15 @@ async function onFile(file) {
     source.value = t.source
     headers.value = t.headers
     records.value = t.records
+    layout.value = t.layout
+    fileNotes.value = t.notes ?? []
+    fileChecks.value = t.checks ?? []
     mapping.value = suggestMapping(t.headers, t.records)
     if (!meta.title) meta.title = file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ')
+    // Use the first sampling date in the file as the dataset's sampling date
+    const dateCol = Object.keys(mapping.value).find((h) => mapping.value[h] === 'sampled_at')
+    const first = dateCol && t.records.map((r) => toIsoDate(r[dateCol])).filter(Boolean).sort()[0]
+    if (first) meta.sampling_date = new Date(first).toLocaleDateString('en-CA')
   } catch (e) {
     error.value = e.message
   }
@@ -67,6 +78,8 @@ function clearFile() {
   headers.value = []
   records.value = []
   mapping.value = {}
+  fileNotes.value = []
+  fileChecks.value = []
 }
 
 const duplicateTargets = computed(() => {
@@ -75,11 +88,20 @@ const duplicateTargets = computed(() => {
   return Object.keys(seen).filter((k) => seen[k] > 1)
 })
 
-const built = computed(() => (records.value.length ? buildRows(records.value, mapping.value, meta.sampling_date) : { rows: [], warnings: [] }))
+const built = computed(() =>
+  records.value.length
+    ? buildRows(records.value, mapping.value, meta.sampling_date, { belowLimit: belowLimit.value })
+    : { rows: [], checks: [] },
+)
+const allChecks = computed(() => [...fileChecks.value, ...built.value.checks])
+const warnChecks = computed(() => allChecks.value.filter((c) => c.level === 'warn'))
+const infoChecks = computed(() => allChecks.value.filter((c) => c.level !== 'warn'))
+const hasBelowLimit = computed(() => records.value.some((r) => Object.values(r).some((v) => typeof v === 'string' && /^\s*<\s*\d/.test(v))))
 const previewCols = computed(() => {
   const mapped = new Set(Object.values(mapping.value))
   return PARAMETERS.filter((p) => mapped.has(p.key))
 })
+const previewExtras = computed(() => Object.keys(mapping.value).filter((h) => mapping.value[h] === 'extra'))
 
 // ---------- Manual form ----------
 const blankSample = () => {
@@ -190,8 +212,8 @@ function downloadTemplate() {
         <label class="field"><span>Researcher ID *</span><input v-model="meta.researcher_code" class="input" required /></label>
         <label class="field"><span>Full name *</span><input v-model="meta.researcher_name" class="input" required /></label>
         <label class="field"><span>Sampling date *</span><input v-model="meta.sampling_date" type="date" class="input" required /></label>
-        <label class="field"><span>Dataset title *</span><input v-model="meta.title" class="input" placeholder="e.g. Geojongcheon November survey" /></label>
-        <label class="field"><span>Stream name</span><input v-model="meta.stream_name" class="input" placeholder="e.g. Geojongcheon" /></label>
+        <label class="field"><span>Dataset title *</span><input v-model="meta.title" class="input" placeholder="e.g. Geojeongcheon November survey" /></label>
+        <label class="field"><span>Stream name</span><input v-model="meta.stream_name" class="input" placeholder="e.g. Geojeongcheon" /></label>
         <div />
         <label class="field span-3"><span>Note</span><textarea v-model="meta.note" class="input" placeholder="Weather, flow conditions, instruments, anything unusual…" /></label>
       </div>
@@ -230,9 +252,14 @@ function downloadTemplate() {
           <div class="row">
             <span class="badge">{{ source.toUpperCase() }}</span>
             <strong>{{ fileName }}</strong>
-            <span class="muted small">{{ records.length }} rows · {{ headers.length }} columns</span>
+            <span class="muted small">{{ records.length }} samples · {{ headers.length }} columns</span>
+            <span v-if="layout === 'wide'" class="badge gray" title="Parameter blocks with dates across the columns">Lab-sheet layout</span>
             <span class="spacer" />
             <button class="btn btn-sm" @click="clearFile">Choose another file</button>
+          </div>
+
+          <div v-if="fileNotes.length" class="notice info">
+            <p v-for="n in fileNotes" :key="n">{{ n }}</p>
           </div>
 
           <div>
@@ -252,11 +279,26 @@ function downloadTemplate() {
             </p>
           </div>
 
-          <div v-if="built.warnings.length" class="notice warn">
-            <strong>Check these values</strong> (they will be saved as empty if not numbers):
-            <ul class="warn-list">
-              <li v-for="w in built.warnings" :key="w">{{ w }}</li>
+          <div class="checks">
+            <h3>Data checks</h3>
+            <label v-if="hasBelowLimit" class="field limit">
+              <span>Values below the detection limit ("&lt;1", "&lt;0.01")</span>
+              <select v-model="belowLimit" class="input">
+                <option value="half">Store half the limit — "&lt;1" → 0.5 (common practice)</option>
+                <option value="limit">Store the limit — "&lt;1" → 1</option>
+                <option value="empty">Leave empty</option>
+              </select>
+            </label>
+            <div v-if="warnChecks.length" class="notice warn">
+              <strong>Please check {{ warnChecks.length === 1 ? 'this' : `these ${warnChecks.length} items` }} in your file</strong>
+              <ul class="warn-list">
+                <li v-for="c in warnChecks" :key="c.text">{{ c.text }}</li>
+              </ul>
+            </div>
+            <ul v-if="infoChecks.length" class="info-list muted small">
+              <li v-for="c in infoChecks" :key="c.text">{{ c.text }}</li>
             </ul>
+            <p v-if="!warnChecks.length && !infoChecks.length" class="notice ok">No problems found.</p>
           </div>
 
           <div>
@@ -268,6 +310,7 @@ function downloadTemplate() {
                     <th>Site</th>
                     <th class="num">Sampled</th>
                     <th v-for="p in previewCols" :key="p.key" class="num">{{ p.short }}</th>
+                    <th v-for="h in previewExtras" :key="h" class="num">{{ h }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -275,6 +318,7 @@ function downloadTemplate() {
                     <td>{{ r.site || '—' }}</td>
                     <td class="num">{{ fmtDate(r.sampled_at) }}</td>
                     <td v-for="p in previewCols" :key="p.key" class="num">{{ fmt(r[p.key]) }}</td>
+                    <td v-for="h in previewExtras" :key="h" class="num">{{ fmt(r.extra[h]) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -428,6 +472,16 @@ function downloadTemplate() {
   overflow: auto;
 }
 .preview { border: 1px solid var(--border); border-radius: 6px; }
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.limit { max-width: 460px; }
+.info-list {
+  margin: 0;
+  padding-left: 18px;
+}
 .check {
   display: inline-flex;
   align-items: center;

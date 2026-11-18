@@ -1,7 +1,7 @@
 # Stream Streaming
 
 An online **descriptive-studies research tool** for urban stream water quality, built for our
-sampling campaign on **Geojongcheon** (Portfolio Project #3 — Online Data Collection Tools).
+sampling campaign on **Geojeongcheon** (Portfolio Project #3 — Online Data Collection Tools).
 
 Researchers upload field and lab measurements (CSV/Excel or a form). Everyone on the team
 can browse the datasets as **descriptive statistics, a full table, charts and an outlier report**,
@@ -89,18 +89,46 @@ policies in `schema.sql` (owner-or-head for edit/delete, signed-in users for rea
 
 ## Deploy
 
-**Netlify:** New site → import the Git repo → *Base directory* `stream-streaming`,
-build command `npm run build`, publish directory `dist` (already in `netlify.toml`).
-Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` under *Site configuration → Environment variables*.
+Checklist before the first deploy:
 
-**Vercel:** New project → import repo → *Root Directory* `stream-streaming`, framework *Vite*.
-Add the same two environment variables.
+1. Supabase project created and `supabase/schema.sql` run (see above).
+2. Code pushed to GitHub.
+3. The two environment variables ready: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+   Without them the deployed site runs in **demo mode** (synthetic data, stored per browser).
 
-Then in Supabase **Authentication → URL Configuration**, set *Site URL* to your deployed address.
+**Netlify (recommended):** *Add new site → Import an existing project* → pick the repo.
+Nothing else to type: base folder, build command, Node version, SPA redirects and headers come
+from `netlify.toml` in the repository root. Add the two variables under
+*Site configuration → Environment variables*, then *Deploys → Trigger deploy*.
 
-## CSV format
+**Vercel:** *Add New → Project* → import the repo → set *Root Directory* to `stream-streaming`
+(framework and build settings come from `vercel.json`). Add the two variables, then deploy.
 
-One row per sample. Header names are matched flexibly (case, spaces and units are ignored):
+After the first deploy, in Supabase **Authentication → URL Configuration** set *Site URL* to the
+deployed address (e.g. `https://stream-streaming.netlify.app`) so sign-up confirmation emails link back
+to it. Environment variables are baked in at build time: after changing them, redeploy.
+
+## Upload formats
+
+### Lab-sheet (wide) Excel
+
+The format of `Geojeongcheon data.xlsx` is read directly: one block per parameter, sampling dates
+across the columns and sites (`B1`, `S1`, …) down the rows, on any number of sheets.
+
+| In the file | What the app does |
+|---|---|
+| Dates as text (`15/07/2025`, day first) or as Excel dates | Both read as the same calendar day |
+| One parameter dated a day or two off the others (Temp `31/10/2025` vs `30/10/2025`) | Merged onto the date the other parameters use, with a warning to fix the sheet |
+| `<1`, `<0.01`, `<2` (below detection limit) | Stored as half the limit by default; the Upload page lets you store the limit or leave it empty |
+| `>0.01` | Stored as 0.01 with a warning (often a typo for `<0.01`) |
+| `UR` or other text | Left empty, with a count per parameter |
+| The same parameter on two sheets (NH3 on *Sheet1* and *Gas*) | Kept apart as `NH3` and `NH3 (Gas)` |
+| Summary tables beside the data (Average Bottom / Surface) | Skipped; the app recalculates statistics |
+
+### Long (one row per sample) CSV or Excel
+
+One row per sample. Title rows above the header are skipped. Header names are matched flexibly
+(case, spaces and units are ignored):
 
 | Field | Recognised headers (examples) |
 |---|---|
