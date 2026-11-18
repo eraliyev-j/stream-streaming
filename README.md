@@ -80,7 +80,7 @@ that browser.
    **Authentication → Sign In / Providers → Email → Confirm email: off**.
 7. Make the lab head (SQL Editor):
    ```sql
-   update public.profiles set role = 'head' where email = 'head@example.com';
+   update public.profiles set role = 'head' where email = 'shpark@dau.ac.kr';
    ```
    After that the head can change other roles from the **Team** page.
 
@@ -97,12 +97,12 @@ Checklist before the first deploy:
    Without them the deployed site runs in **demo mode** (synthetic data, stored per browser).
 
 **Netlify (recommended):** *Add new site → Import an existing project* → pick the repo.
-Nothing else to type: base folder, build command, Node version, SPA redirects and headers come
-from `netlify.toml` in the repository root. Add the two variables under
-*Site configuration → Environment variables*, then *Deploys → Trigger deploy*.
+Nothing else to type: build command, Node version, SPA redirects and headers come from
+`netlify.toml`. Add the two variables under *Site configuration → Environment variables*,
+then *Deploys → Trigger deploy*.
 
-**Vercel:** *Add New → Project* → import the repo → set *Root Directory* to `stream-streaming`
-(framework and build settings come from `vercel.json`). Add the two variables, then deploy.
+**Vercel:** *Add New → Project* → import the repo (framework and build settings come from
+`vercel.json`). Add the two variables, then deploy.
 
 After the first deploy, in Supabase **Authentication → URL Configuration** set *Site URL* to the
 deployed address (e.g. `https://stream-streaming.netlify.app`) so sign-up confirmation emails link back

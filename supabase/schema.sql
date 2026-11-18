@@ -227,5 +227,5 @@ create trigger datasets_touch
 -- =====================================================================
 -- After the lab head has signed up on the website, make them head:
 --
---   update public.profiles set role = 'head' where email = 'head@example.com';
+--   update public.profiles set role = 'head' where email = 'shpark@dau.ac.kr';
 -- =====================================================================
