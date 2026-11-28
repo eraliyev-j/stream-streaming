@@ -64,6 +64,16 @@ Open http://localhost:5173. Without Supabase keys the site runs in **demo mode**
 the demo accounts (one lab head, three researchers) and try everything. Demo data lives only in
 that browser.
 
+### Single-file offline version
+
+```bash
+npm run build:standalone
+```
+
+Produces `dist-standalone/index.html`: the whole app (code, styles, charts, Excel reader) in one
+file. Open it by double-click — no server or internet needed. It uses hash URLs (`#/datasets`)
+and runs in demo mode unless Supabase keys were set at build time.
+
 ## Connect Supabase (shared real data)
 
 1. Create a free project at [supabase.com](https://supabase.com).

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import { session, refreshSession } from './store/session.js'
 
 const routes = [
@@ -13,7 +13,9 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // Hash URLs in the standalone single-file build so it works from file://
+  // eslint-disable-next-line no-undef
+  history: typeof __HASH_ROUTER__ !== 'undefined' && __HASH_ROUTER__ ? createWebHashHistory() : createWebHistory(),
   routes,
   scrollBehavior: () => ({ top: 0 }),
 })
