@@ -7,6 +7,7 @@ import { PARAMETERS, META_COLUMNS } from '../lib/parameters.js'
 import { readTable, suggestMapping, buildRows, toNumber, toIsoDate } from '../lib/parseFile.js'
 import { fmt } from '../lib/stats.js'
 import { fmtDate } from '../lib/columns.js'
+import { saveTextFile } from '../lib/saveFile.js'
 
 const router = useRouter()
 const today = new Date().toLocaleDateString('en-CA')
@@ -184,12 +185,7 @@ async function submit() {
 function downloadTemplate() {
   const head = ['site', 'date', 'lat', 'lon', ...PARAMETERS.map((p) => (p.unit ? `${p.short} (${p.unit})` : p.short))]
   const example = ['ST-01', `${today} 09:30`, '35.1796', '129.0756', '18.2', '7.6', '8.4', '320', '5.1', '2.3', '5.0', '8.0', '3.1', '0.08']
-  const blob = new Blob([head.join(',') + '\n' + example.join(',') + '\n'], { type: 'text/csv' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = 'stream-streaming-template.csv'
-  a.click()
-  URL.revokeObjectURL(a.href)
+  saveTextFile('stream-streaming-template.csv', head.join(',') + '\n' + example.join(',') + '\n', 'text/csv')
 }
 </script>
 

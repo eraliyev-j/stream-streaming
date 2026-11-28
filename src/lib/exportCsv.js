@@ -1,5 +1,6 @@
 import Papa from 'papaparse'
 import { PARAMETERS } from './parameters.js'
+import { saveTextFile } from './saveFile.js'
 
 /** Flatten measurement rows (incl. extra columns) and download as CSV. */
 export function downloadCsv(rows, filename = 'stream-data.csv', datasetsById = {}) {
@@ -21,11 +22,5 @@ export function downloadCsv(rows, filename = 'stream-data.csv', datasetsById = {
     return out
   })
   const csv = Papa.unparse(data)
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
+  return saveTextFile(filename, '\ufeff' + csv)
 }
